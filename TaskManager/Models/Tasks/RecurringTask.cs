@@ -9,23 +9,26 @@ namespace TaskManager.Models.Tasks
 {
     public class RecurringTask : BaseTask
     {
-        public TimeSpan RecurrenceInterval { get; set; }
+        public TimeSpan RepeatInterval { get; set; }
 
-        public RecurringTask(string title, string description, DateTime dueDate, Priority priority, TimeSpan recurrenceInterval)
+        public RecurringTask(string title, string description, DateTime dueDate, Priority priority, TimeSpan repeatInterval)
             : base(title, description, dueDate, priority)
-        { 
-            RecurrenceInterval = recurrenceInterval;
+        {
+            RepeatInterval = repeatInterval;
         }
+
+        public RecurringTask(Guid id, DateTime createdAt)
+            : base(id, createdAt) { }
 
         public RecurringTask(RecurringTask other) : base(other)
         {
-            RecurrenceInterval = other.RecurrenceInterval;
+            RepeatInterval = other.RepeatInterval;
         }
 
         public override string ToString()
         {
             return base.ToString() + "\n" +
-                $"Repeat every: {RecurrenceInterval.Days}d {RecurrenceInterval.Hours}h {RecurrenceInterval.Minutes}m";
+                $"Repeat every: {RepeatInterval.Days}d {RepeatInterval.Hours}h {RepeatInterval.Minutes}m";
         }
     }
 }

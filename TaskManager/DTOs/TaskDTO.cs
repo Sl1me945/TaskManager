@@ -7,6 +7,13 @@ using TaskManager.Models.Enums;
 
 namespace TaskManager.DTOs
 {
+    public enum TaskType
+    {
+        Simple,
+        Work,
+        Recurring
+    }
+
     public class TaskDto
     {
         public TaskType Type { get; set; }

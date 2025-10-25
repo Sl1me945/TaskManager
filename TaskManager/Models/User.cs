@@ -9,8 +9,8 @@ namespace TaskManager.Models
 {
     public class User
     {
-        public string Username { get; set; }
-        public string PasswordHash { get; set; }
+        public string Username { get; set; } = "";
+        public string PasswordHash { get; set; } = "";
         public bool IsAdmin { get; init; }
         public List<ITask> Tasks { get; set; } = new List<ITask>();
 
@@ -20,5 +20,7 @@ namespace TaskManager.Models
             PasswordHash = passwordHash;
             IsAdmin = isAdmin;
         }
+
+        public User() { }
     }
 }

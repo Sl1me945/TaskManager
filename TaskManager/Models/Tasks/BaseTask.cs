@@ -10,9 +10,9 @@ namespace TaskManager.Models.Tasks
 {
     public abstract class BaseTask : ITask
     {
-        public Guid Id { get; init; } = Guid.NewGuid(); 
-        public string Title { get; set; }
-        public string Description { get; set; }
+        public Guid Id { get; init; } = Guid.NewGuid();
+        public string Title { get; set; } = "";
+        public string Description { get; set; } = "";
         public DateTime CreatedAt { get; init; }
         public DateTime DueDate { get; set; }
         public bool IsCompleted { get; private set; }
@@ -26,6 +26,12 @@ namespace TaskManager.Models.Tasks
             Priority = priority;
             CreatedAt = DateTime.Now;
             IsCompleted = false;
+        }
+
+        protected BaseTask(Guid id, DateTime createdAt)
+        {
+            Id = id;
+            CreatedAt = createdAt;
         }
 
         protected BaseTask(BaseTask other)

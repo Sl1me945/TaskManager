@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace TaskManager.DTOs
 {
-    internal class UserDTO
+    public class UserDto
     {
+        public string Username { get; set; } = "";
+        public string PasswordHash { get; set; } = "";
+        public bool IsAdmin { get; set; }
+        public List<TaskDto> Tasks { get; set; } = new();
     }
 }
