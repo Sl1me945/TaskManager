@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TaskManager.Models;
+using ToDoApp.Models;
 
-namespace TaskManager.Interfaces
+namespace ToDoApp.Interfaces
 {
     public interface IAuthService
     {
         User? CurrentUser { get; }
-        Task SignUpAsync(string username, string password, bool? isAdmin = null);
+        Task SignUpAsync(string username, string password);
         Task<bool> SignInAsync(string username, string password);
         void SignOut();
     }

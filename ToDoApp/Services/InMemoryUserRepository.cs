@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TaskManager.Interfaces;
-using TaskManager.Models;
+using ToDoApp.Interfaces;
+using ToDoApp.Models;
 
-namespace TaskManager.Services
+namespace ToDoApp.Services
 {
     public class InMemoryUserRepository : IUserRepository
     {

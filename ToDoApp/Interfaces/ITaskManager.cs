@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TaskManager.Models;
-using TaskManager.Models.Tasks;
+using ToDoApp.Models;
+using ToDoApp.Models.Tasks;
+using ToDoApp.Interfaces;
 
-namespace TaskManager.Interfaces
+namespace ToDoApp.Interfaces
 {
     public interface ITaskManager
     {

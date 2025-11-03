@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TaskManager.Interfaces
+namespace ToDoApp.Interfaces
 {
     public interface IPasswordHasher
     {

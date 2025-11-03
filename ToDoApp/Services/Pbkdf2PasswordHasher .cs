@@ -4,9 +4,9 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using TaskManager.Interfaces;
+using ToDoApp.Interfaces;
 
-namespace TaskManager.Services
+namespace ToDoApp.Services
 {
     public class Pbkdf2PasswordHasher : IPasswordHasher
     {

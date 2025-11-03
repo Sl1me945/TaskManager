@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TaskManager.Interfaces;
-using TaskManager.Models.Enums;
+using ToDoApp.Interfaces;
+using ToDoApp.Models.Enums;
 
-namespace TaskManager.Models.Tasks
+namespace ToDoApp.Models.Tasks
 {
     public abstract class BaseTask : ITask
     {

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TaskManager.Models;
+using ToDoApp.Models;
 
-namespace TaskManager.Interfaces
+namespace ToDoApp.Interfaces
 {
     public interface IUserRepository
     {

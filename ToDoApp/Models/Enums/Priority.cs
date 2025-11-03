@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TaskManager.Models.Enums
+namespace ToDoApp.Models.Enums
 {
 
 	public enum Priority

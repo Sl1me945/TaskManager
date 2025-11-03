@@ -4,60 +4,66 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using TaskManager.Interfaces;
-using TaskManager.Models;
-using TaskManager.Models.Tasks;
-using TaskManager.Models.Enums;
-using TaskManager.DTOs;
+using ToDoApp.Interfaces;
+using ToDoApp.Models;
+using ToDoApp.Models.Tasks;
+using ToDoApp.Models.Enums;
+using ToDoApp.DTOs;
 
-namespace TaskManager.Services
+namespace ToDoApp.Services
 {
     public class JsonUserRepository : IUserRepository
     {
-        private string jsonFilePath { get;  init; }
+        private readonly string _jsonFilePath;
+        private readonly ILogger _logger;
         private readonly IFileStorageService _fileStorageService;
 
-        public JsonUserRepository(IFileStorageService fileStorageService) 
+        public JsonUserRepository(ILogger logger, IFileStorageService fileStorageService, string jsonFilePath = "data/users/users.json") 
         {
+            _logger = logger;
             _fileStorageService = fileStorageService;
-            jsonFilePath = "data/users/users.json";
+            _jsonFilePath = jsonFilePath;
 
-            var directory = Path.GetDirectoryName(jsonFilePath) ?? ".";
+            var directory = Path.GetDirectoryName(_jsonFilePath) ?? ".";
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
 
-            if (!File.Exists(jsonFilePath))
-                File.WriteAllText(jsonFilePath, "[]");
+            if (!File.Exists(_jsonFilePath))
+                File.WriteAllText(_jsonFilePath, "[]");
         }
 
         public async Task<IReadOnlyList<User>> GetAllAsync()
         {
-            var usersDto = await _fileStorageService.LoadAsync<IReadOnlyList<UserDto>>(jsonFilePath);
+            _logger.Info("Get all users");
+            var usersDto = await _fileStorageService.LoadAsync<IReadOnlyList<UserDto>>(_jsonFilePath);
             IReadOnlyList<User> users = usersDto.Select(u => MapToDomain(u)).ToList().AsReadOnly();
 
             return users;
         }
         public async Task<User?> GetByUsernameAsync(string username)
         {
-            var usersDto = await _fileStorageService.LoadAsync<List<UserDto>>(jsonFilePath);
+            _logger.Info($"Get by username: {username}");
+            var usersDto = await _fileStorageService.LoadAsync<List<UserDto>>(_jsonFilePath);
             var users = usersDto.Select(u => MapToDomain(u)).ToList();
 
             return users.FirstOrDefault(x => x.Username == username);
         }
         public async Task AddAsync(User user)
         {
-            var usersDto = await _fileStorageService.LoadAsync<List<UserDto>>(jsonFilePath);
+            _logger.Info($"Add user: {user.Username}");
+            var usersDto = await _fileStorageService.LoadAsync<List<UserDto>>(_jsonFilePath);
             var users = usersDto.Select(u => MapToDomain(u)).ToList();
 
             users.Add(user);
 
             usersDto = users.Select(u => MapToDto(u)).ToList();
-            await _fileStorageService.SaveAsync<List<UserDto>>(jsonFilePath, usersDto);
+            await _fileStorageService.SaveAsync<List<UserDto>>(_jsonFilePath, usersDto);
             return;
         }
         public async Task UpdateAsync(User user)
         {
-            var usersDto = await _fileStorageService.LoadAsync<List<UserDto>>(jsonFilePath);
+            _logger.Info($"Update user: {user.Username}");
+            var usersDto = await _fileStorageService.LoadAsync<List<UserDto>>(_jsonFilePath);
             var users = usersDto.Select(u => MapToDomain(u)).ToList();
             var existingUser = users.FirstOrDefault(x => x.Username == user.Username);
 
@@ -69,17 +75,18 @@ namespace TaskManager.Services
             existingUser.Tasks = user.Tasks;
 
             usersDto = users.Select(u => MapToDto(u)).ToList();
-            await _fileStorageService.SaveAsync<List<UserDto>>(jsonFilePath, usersDto);
+            await _fileStorageService.SaveAsync<List<UserDto>>(_jsonFilePath, usersDto);
             return;
         }
         public Task SaveChangeAsync()
         {
             return Task.CompletedTask;
         }
+
         // Mapping functions
         private static User MapToDomain(UserDto dto)
         {
-            var u = new User() { Username = dto.Username, PasswordHash = dto.PasswordHash, IsAdmin = dto.IsAdmin };
+            var u = new User() { Username = dto.Username, PasswordHash = dto.PasswordHash};
             foreach (var t in dto.Tasks)
             {
                 ITask? task = t.Type switch
@@ -101,7 +108,7 @@ namespace TaskManager.Services
 
         private static UserDto MapToDto(User user)
         {
-            var dto = new UserDto { Username = user.Username, PasswordHash = user.PasswordHash, IsAdmin = user.IsAdmin };
+            var dto = new UserDto { Username = user.Username, PasswordHash = user.PasswordHash};
             dto.Tasks = user.Tasks.Select(t =>
             {
                 var tt = new TaskDto

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using TaskManager.Models.Enums;
+using ToDoApp.Models.Enums;
 
-namespace TaskManager.DTOs
+namespace ToDoApp.DTOs
 {
     public enum TaskType
     {
