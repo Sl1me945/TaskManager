@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-
+﻿
 namespace ToDoApp.Interfaces 
 {
     public enum FileFormat
@@ -12,7 +9,7 @@ namespace ToDoApp.Interfaces
         Csv
     }
 
-    public interface IFileStorageService
+    public interface IFileStorage
     {
         Task SaveAsync<T>(string path, T data, FileFormat format = FileFormat.Auto);
         Task<T> LoadAsync<T>(string path, FileFormat format = FileFormat.Auto);

@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.IdentityModel.JsonWebTokens;
 using ToDoApp.Interfaces;
 using ToDoApp.Models;
-using ToDoApp.Models.Tasks;
 
 namespace ToDoApp.Services
 {
@@ -13,44 +8,83 @@ namespace ToDoApp.Services
     {
         private readonly ILogger _logger;
         private readonly IUserRepository _userRepository;
-        private readonly IAuthService _authService;
+        private readonly ITokenService _tokenService;
 
-        private User CurrentUser => _authService.CurrentUser
-            ?? throw new InvalidOperationException("User not logged in.");
-
-        public TaskManager(ILogger logger, IUserRepository userRepository, IAuthService authService)
+        public TaskManager(ILogger logger, IUserRepository userRepository, ITokenService tokenService)
         {
             _logger = logger;
             _userRepository = userRepository;
-            _authService = authService;
+            _tokenService = tokenService;
         }
 
-        public async Task AddTaskAsync(ITask task)
+        public async Task AddTaskAsync(string token, ITask task)
         {
             _logger.Info($"Add task: {task.Id}");
-            CurrentUser.Tasks.Add(task);
-            await _userRepository.UpdateAsync(CurrentUser);
+
+            var user = await getUserFromToken(token);
+
+            user.Tasks.Add(task);
+
+            await _userRepository.UpdateAsync(user);
         }
-        public async Task RemoveTaskAsync(Guid taskId)
+        public async Task RemoveTaskAsync(string token, Guid taskId)
         {
             _logger.Info($"Remove task: {taskId}");
-            var task = CurrentUser.Tasks.FirstOrDefault(t => t.Id == taskId) ?? throw new InvalidOperationException("Task not found");
-            CurrentUser.Tasks.Remove(task);
-            await _userRepository.UpdateAsync(CurrentUser);
+
+            var user = await getUserFromToken(token);
+
+            var task = user.Tasks.FirstOrDefault(t => t.Id == taskId) 
+                ?? throw new InvalidOperationException("Task not found");
+            user.Tasks.Remove(task);
+
+            await _userRepository.UpdateAsync(user);
         }
-        public async Task MarkAsCompletedAsync(Guid taskId)
+        public async Task MarkAsCompletedAsync(string token, Guid taskId)
         {
             _logger.Info($"Mark as completed task: {taskId}");
-            var task = CurrentUser.Tasks.FirstOrDefault(t => t.Id == taskId) ?? throw new InvalidOperationException("Task not found");
+
+            var user = await getUserFromToken(token);
+
+            var task = user.Tasks.FirstOrDefault(t => t.Id == taskId) 
+                ?? throw new InvalidOperationException("Task not found");
             task.MarkAsCompleted();
-            await _userRepository.UpdateAsync(CurrentUser);
+
+            await _userRepository.UpdateAsync(user);
         }
-        public IEnumerable<ITask> Search(string keyword)
-            => CurrentUser.Tasks.Where(t => t.Title.Contains(keyword, StringComparison.OrdinalIgnoreCase)
-                                        || t.Description.Contains(keyword, StringComparison.OrdinalIgnoreCase));
-        public IEnumerable<ITask> SortByDate(bool ascending = true)
-            => ascending ? CurrentUser.Tasks.OrderBy(t => t.DueDate) : CurrentUser.Tasks.OrderByDescending(t => t.DueDate);
-        public IEnumerable<ITask> FilterByCompletion(bool isCompleted)
-            => CurrentUser.Tasks.Where(t => t.IsCompleted == isCompleted);
+        public async Task<IEnumerable<ITask>> SearchAsync(string token, string keyword)
+        {
+            var user = await getUserFromToken(token);
+            return user.Tasks.Where(t => 
+                t.Title.Contains(keyword, StringComparison.OrdinalIgnoreCase)
+                || t.Description.Contains(keyword, StringComparison.OrdinalIgnoreCase));
+        }
+        public async Task<IEnumerable<ITask>> SortByDateAsync(string token, bool ascending = true)
+        {
+            var user = await getUserFromToken(token);
+            return ascending 
+                ? user.Tasks.OrderBy(t => t.DueDate) 
+                : user.Tasks.OrderByDescending(t => t.DueDate);
+        }
+        public async Task<IEnumerable<ITask>> FilterByCompletionAsync(string token, bool isCompleted)
+        {
+            var user = await getUserFromToken(token);
+            return user.Tasks.Where(t => t.IsCompleted == isCompleted);
+        }
+
+        private async Task<User> getUserFromToken(string token)
+        {
+            var validationResult = await _tokenService.ValidateTokenAsync(token);
+            if (validationResult == null || !validationResult.IsValid)
+                throw new UnauthorizedAccessException("Invalid or expired token.");
+
+            var username = validationResult.ClaimsIdentity?.FindFirst(JwtRegisteredClaimNames.Sub)?.Value;
+            if (string.IsNullOrEmpty(username))
+                throw new UnauthorizedAccessException("Token does not contain username.");
+
+            var user = await _userRepository.GetByUsernameAsync(username)
+                ?? throw new InvalidOperationException("User not found.");
+
+            return user;
+        }
     }
 }

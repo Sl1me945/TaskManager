@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using ToDoApp.Interfaces;
+﻿using ToDoApp.Interfaces;
 using ToDoApp.Models;
 using ToDoApp.Models.Tasks;
-using ToDoApp.Models.Enums;
 using ToDoApp.DTOs;
 
 namespace ToDoApp.Services
@@ -16,9 +9,9 @@ namespace ToDoApp.Services
     {
         private readonly string _jsonFilePath;
         private readonly ILogger _logger;
-        private readonly IFileStorageService _fileStorageService;
+        private readonly IFileStorage _fileStorageService;
 
-        public JsonUserRepository(ILogger logger, IFileStorageService fileStorageService, string jsonFilePath = "data/users/users.json") 
+        public JsonUserRepository(ILogger logger, IFileStorage fileStorageService, string jsonFilePath = "data/users/users.json") 
         {
             _logger = logger;
             _fileStorageService = fileStorageService;

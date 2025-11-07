@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace ToDoApp.Interfaces
 {
 	public interface ILogger

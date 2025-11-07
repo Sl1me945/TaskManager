@@ -1,19 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using System.Xml.Serialization;
+﻿using System.Text.Json;
 using ToDoApp.Interfaces;
 
 namespace ToDoApp.Services
 {
-    public class FileStorageService : IFileStorageService
+    public class FileStorage : IFileStorage
     {
         private static FileFormat ResolveFormat(string path, FileFormat format)
         {

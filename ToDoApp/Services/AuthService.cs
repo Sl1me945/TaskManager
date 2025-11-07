@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ToDoApp.Interfaces;
+﻿using ToDoApp.Interfaces;
 using ToDoApp.Models;
 
 namespace ToDoApp.Services
@@ -13,13 +8,15 @@ namespace ToDoApp.Services
         private readonly ILogger _logger;
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasher _passwordHasher;
+        private readonly ITokenService _tokenService;
         public User? CurrentUser { get; private set; }
 
-        public AuthService(ILogger logger, IUserRepository userRepository, IPasswordHasher passwordHasher)
+        public AuthService(ILogger logger, IUserRepository userRepository, IPasswordHasher passwordHasher, ITokenService tokenService)
         {
             _logger = logger;
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
+            _tokenService = tokenService;
         }
 
         public async Task SignUpAsync(string username, string password)
@@ -36,19 +33,16 @@ namespace ToDoApp.Services
             await _userRepository.AddAsync(user);
         }
 
-        public async Task<bool> SignInAsync(string username, string password)
+        public async Task<string?> SignInAsync(string username, string password)
         {
             _logger.Info($"Sign in attempt for user: {username}");
             var user = await _userRepository.GetByUsernameAsync(username);
-            if (user == null)
-                return false;
+            if (user == null || !_passwordHasher.Verify(user.PasswordHash, password))
+                return null;
 
-            if (!_passwordHasher.Verify(user.PasswordHash, password))
-                return false;
+            var tokenString = _tokenService.GenerateToken(user);
 
-            CurrentUser = user;
-            _logger.Info($"Succesfully sign in for user: {username}");
-            return true;
+            return tokenString;
         }
 
         public void SignOut()
@@ -57,5 +51,4 @@ namespace ToDoApp.Services
             CurrentUser = null;
         }
     }
-
 }
