@@ -1,50 +1,63 @@
 ﻿using FluentAssertions;
 using Moq;
-using ToDoApp.DTOs;
-using ToDoApp.Interfaces;
-using ToDoApp.Models.Tasks;
-using ToDoApp.Services;
+using ToDoApp.Application.DTOs;
+using ToDoApp.Application.Interfaces;
+using ToDoApp.Domain.Enums;
+using ToDoApp.Infrastructure.Repositories;
 
 namespace ToDoAppTests
 {
     public class UserRepositoryTests
     {
         [Fact]
-        public async Task GetAllAsync_ShouldReturnUsersFromStorage()
+        public async Task GetAllAsync_ShouldReturnMappedUsers()
         {
             // Arrange
             var logger = new Mock<ILogger>();
             var fileStorage = new Mock<IFileStorage>();
 
-            var expectedUsers = new List<UserDto>
-        {
-            new UserDto
+            var filePath = "users.json";
+
+            var expectedDtos = new List<UserDto>
             {
-                Username = "Grigorii",
-                PasswordHash = "1111",
-                Tasks = new List<TaskDto>
-                {
-                    new TaskDto { Title = "Test Task", IsCompleted = false }
+                new() {
+                    Username = "Grigorii",
+                    PasswordHash = "1111",
+                    Tasks =
+                    [
+                        new() {
+                            Id = Guid.NewGuid(),
+                            Title = "Test Task",
+                            Type = TaskType.Simple,
+                            IsCompleted = false,
+                            CreatedAt = DateTime.UtcNow
+                        }
+                    ]
                 }
-            }
-        };
+            };
 
-            // When JsonUserRepository loads users, it will call LoadAsync<IReadOnlyList<UserDto>>(...)
-            fileStorage.Setup(f => f.LoadAsync<IReadOnlyList<UserDto>>("data/users/users.json"))
-                       .ReturnsAsync(expectedUsers);
+            fileStorage
+                .Setup(s => s.LoadAsync<IReadOnlyList<UserDto>>(filePath))
+                .ReturnsAsync(expectedDtos);
 
-            IUserRepository userRepository = new JsonUserRepository(logger.Object, fileStorage.Object);
+            var repo = new FileUserRepository(
+                logger.Object,
+                fileStorage.Object,
+                filePath);
 
             // Act
-            var actualUsers = await userRepository.GetAllAsync();
+            var users = await repo.GetAllAsync();
 
             // Assert
-            actualUsers.Should().NotBeNull();
-            actualUsers.Should().HaveCount(1);
-            actualUsers[0].Username.Should().Be("Grigorii");
+            users.Should().NotBeNull();
+            users.Should().HaveCount(1);
 
-            // Verify that LoadAsync was indeed called
-            fileStorage.Verify(f => f.LoadAsync<IReadOnlyList<UserDto>>("data/users/users.json"), Times.Once);
+            var user = users[0];
+            user.Username.Should().Be("Grigorii");
+            user.Tasks.Should().HaveCount(1);
+            user.Tasks[0].Title.Should().Be("Test Task");
+
+            fileStorage.Verify(x => x.LoadAsync<IReadOnlyList<UserDto>>(filePath), Times.Once);
         }
     }
 }
