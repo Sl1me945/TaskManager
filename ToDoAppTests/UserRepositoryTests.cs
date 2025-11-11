@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using Microsoft.Extensions.Logging;
+using FluentAssertions;
 using Moq;
 using ToDoApp.Application.DTOs;
 using ToDoApp.Application.Interfaces;
@@ -13,7 +14,7 @@ namespace ToDoAppTests
         public async Task GetAllAsync_ShouldReturnMappedUsers()
         {
             // Arrange
-            var logger = new Mock<ILogger>();
+            var logger = new Mock<ILogger<FileUserRepository>>();
             var fileStorage = new Mock<IFileStorage>();
 
             var filePath = "users.json";

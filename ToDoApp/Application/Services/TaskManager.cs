@@ -1,19 +1,20 @@
-﻿using Microsoft.IdentityModel.JsonWebTokens;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.JsonWebTokens;
 using ToDoApp.Application.Interfaces;
 using ToDoApp.Domain.Entities;
 using ToDoApp.Domain.Entities.Tasks;
 
 namespace ToDoApp.Application.Services
 {
-    public class TaskManager(ILogger logger, IUserRepository userRepository, ITokenService tokenService) : ITaskManager
+    public class TaskManager(ILogger<TaskManager> logger, IUserRepository userRepository, ITokenService tokenService) : ITaskManager
     {
-        private readonly ILogger _logger = logger;
+        private readonly ILogger<TaskManager> _logger = logger;
         private readonly IUserRepository _userRepository = userRepository;
         private readonly ITokenService _tokenService = tokenService;
 
         public async Task AddTaskAsync(string token, BaseTask task)
         {
-            _logger.Info($"Add task: {task.Id}");
+            _logger.LogInformation($"Add task: {task.Id}");
 
             var user = await GetUserFromToken(token);
 
@@ -23,7 +24,7 @@ namespace ToDoApp.Application.Services
         }
         public async Task RemoveTaskAsync(string token, Guid taskId)
         {
-            _logger.Info($"Remove task: {taskId}");
+            _logger.LogInformation($"Remove task: {taskId}");
 
             var user = await GetUserFromToken(token);
 
@@ -35,7 +36,7 @@ namespace ToDoApp.Application.Services
         }
         public async Task MarkAsCompletedAsync(string token, Guid taskId)
         {
-            _logger.Info($"Mark as completed task: {taskId}");
+            _logger.LogInformation($"Mark as completed task: {taskId}");
 
             var user = await GetUserFromToken(token);
 

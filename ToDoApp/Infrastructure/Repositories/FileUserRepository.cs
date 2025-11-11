@@ -1,4 +1,5 @@
-﻿using ToDoApp.Domain.Entities;
+﻿using Microsoft.Extensions.Logging;
+using ToDoApp.Domain.Entities;
 using ToDoApp.Domain.Entities.Tasks;
 using ToDoApp.Domain.Enums;
 using ToDoApp.Application.DTOs;
@@ -6,15 +7,15 @@ using ToDoApp.Application.Interfaces;
 
 namespace ToDoApp.Infrastructure.Repositories
 {
-    public class FileUserRepository(ILogger logger, IFileStorage fileStorageService, string filePath) : IUserRepository
+    public class FileUserRepository(ILogger<FileUserRepository> logger, IFileStorage fileStorageService, string filePath) : IUserRepository
     {
         private readonly string _jsonFilePath = filePath;
-        private readonly ILogger _logger = logger;
+        private readonly ILogger<FileUserRepository> _logger = logger;
         private readonly IFileStorage _fileStorageService = fileStorageService;
 
         public async Task<IReadOnlyList<User>> GetAllAsync()
         {
-            _logger.Info("Get all users");
+            _logger.LogInformation("Get all users");
             var usersDto = await _fileStorageService.LoadAsync<IReadOnlyList<UserDto>>(_jsonFilePath);
             IReadOnlyList<User> users = usersDto.Select(u => MapToDomain(u)).ToList().AsReadOnly();
 
@@ -22,7 +23,7 @@ namespace ToDoApp.Infrastructure.Repositories
         }
         public async Task<User?> GetByUsernameAsync(string username)
         {
-            _logger.Info($"Get by username: {username}");
+            _logger.LogInformation($"Get by username: {username}");
             var usersDto = await _fileStorageService.LoadAsync<List<UserDto>>(_jsonFilePath);
             var users = usersDto.Select(u => MapToDomain(u)).ToList();
 
@@ -30,7 +31,7 @@ namespace ToDoApp.Infrastructure.Repositories
         }
         public async Task AddAsync(User user)
         {
-            _logger.Info($"Add user: {user.Username}");
+            _logger.LogInformation($"Add user: {user.Username}");
             var usersDto = await _fileStorageService.LoadAsync<List<UserDto>>(_jsonFilePath);
             var users = usersDto.Select(u => MapToDomain(u)).ToList();
 
@@ -42,7 +43,7 @@ namespace ToDoApp.Infrastructure.Repositories
         }
         public async Task UpdateAsync(User user)
         {
-            _logger.Info($"Update user: {user.Username}");
+            _logger.LogInformation($"Update user: {user.Username}");
             var usersDto = await _fileStorageService.LoadAsync<List<UserDto>>(_jsonFilePath);
             var users = usersDto.Select(u => MapToDomain(u)).ToList();
             var existingUser = users.FirstOrDefault(x => x.Username == user.Username)

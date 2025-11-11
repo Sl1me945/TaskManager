@@ -1,11 +1,12 @@
-﻿using ToDoApp.Application.Interfaces;
+﻿using Microsoft.Extensions.Logging;
+using ToDoApp.Application.Interfaces;
 using ToDoApp.Domain.Entities;
 
 namespace ToDoApp.Application.Services
 {
-    public class AuthService(ILogger logger, IUserRepository userRepository, IPasswordHasher passwordHasher, ITokenService tokenService) : IAuthService
+    public class AuthService(ILogger<AuthService> logger, IUserRepository userRepository, IPasswordHasher passwordHasher, ITokenService tokenService) : IAuthService
     {
-        private readonly ILogger _logger = logger;
+        private readonly ILogger<AuthService> _logger = logger;
         private readonly IUserRepository _userRepository = userRepository;
         private readonly IPasswordHasher _passwordHasher = passwordHasher;
         private readonly ITokenService _tokenService = tokenService;
@@ -13,7 +14,7 @@ namespace ToDoApp.Application.Services
 
         public async Task SignUpAsync(string username, string password)
         {
-            _logger.Info($"Sign up attempt for user: {username}");
+            _logger.LogInformation($"Sign up attempt for user: {username}");
             var existingUser = await _userRepository.GetByUsernameAsync(username);
             if (existingUser != null)
                 throw new InvalidOperationException("This username is already taken.");
@@ -21,13 +22,13 @@ namespace ToDoApp.Application.Services
             string passwordHash = _passwordHasher.Hash(password);
             var user = new User(username, passwordHash);
 
-            _logger.Info($"Succesfully sign up for user: {username}");
+            _logger.LogInformation($"Succesfully sign up for user: {username}");
             await _userRepository.AddAsync(user);
         }
 
         public async Task<string?> SignInAsync(string username, string password)
         {
-            _logger.Info($"Sign in attempt for user: {username}");
+            _logger.LogInformation($"Sign in attempt for user: {username}");
             var user = await _userRepository.GetByUsernameAsync(username);
             if (user == null || !_passwordHasher.Verify(user.PasswordHash, password))
                 return null;
@@ -39,7 +40,7 @@ namespace ToDoApp.Application.Services
 
         public void SignOut()
         {
-            _logger.Info("Sign out");
+            _logger.LogInformation("Sign out");
             CurrentUser = null;
         }
     }
