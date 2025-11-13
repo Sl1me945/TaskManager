@@ -1,18 +1,22 @@
 ﻿using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 using ToDoApp.Application.DTOs;
 using ToDoApp.Application.Interfaces;
 using ToDoApp.Domain.Entities;
-using ToDoApp.Domain.Entities.Tasks;
-using ToDoApp.Domain.Enums;
 
 namespace ToDoApp.Infrastructure.Repositories
 {
-    public class FileUserRepository(ILogger<FileUserRepository> logger, IFileStorage fileStorageService, string filePath) : IUserRepository
+    public class FileUserRepository : IUserRepository
     {
-        private readonly ILogger<FileUserRepository> _logger = logger;
-        private readonly IFileStorage _fileStorage = fileStorageService;
-        private readonly string _filePath = filePath;
+        private readonly ILogger<FileUserRepository> _logger;
+        private readonly IFileStorage _fileStorage;
+        private readonly string _filePath;
+
+        public FileUserRepository(ILogger<FileUserRepository> logger, IFileStorage fileStorageService, string filePath)
+        {
+            _logger = logger;
+            _fileStorage = fileStorageService;
+            _filePath = filePath;
+        }
 
         public async Task<IReadOnlyList<User>> GetAllAsync()
         {
@@ -51,7 +55,6 @@ namespace ToDoApp.Infrastructure.Repositories
             users.Add(user);
 
             await SaveAllUsersAsync(users);
-            return;
         }
         public async Task UpdateAsync(User user)
         {
@@ -64,7 +67,6 @@ namespace ToDoApp.Infrastructure.Repositories
             users[index] = user;
 
             await SaveAllUsersAsync(users);
-            return;
         }
         public Task SaveChangesAsync()
         {
@@ -74,7 +76,7 @@ namespace ToDoApp.Infrastructure.Repositories
         // Mapping functions
         private static User MapToDomain(UserDto dto)
         {
-            var user = new User() { Id = dto.Id, Username = dto.Username, PasswordHash = dto.PasswordHash};
+            var user = new User() { Id = dto.Id, Username = dto.Username, PasswordHash = dto.PasswordHash };
             return user;
         }
         private static UserDto MapToDto(User user)
@@ -91,7 +93,7 @@ namespace ToDoApp.Infrastructure.Repositories
         // Other functions
         private async Task<List<User>> LoadAllUsersAsync()
         {
-            var dtos = await _fileStorage.LoadAsync<List<UserDto>>(_filePath);
+            var dtos = await _fileStorage.LoadAsync<List<UserDto>>(_filePath) ?? [];
             return [.. dtos.Select(MapToDomain)];
         }
         private async Task SaveAllUsersAsync(IEnumerable<User> users)

@@ -5,11 +5,18 @@ using ToDoApp.Domain.Entities.Tasks;
 
 namespace ToDoApp.Application.Services
 {
-    public class TaskManager(ILogger<TaskManager> logger, ITaskRepository taskRepository, IUserRepository userRepository) : ITaskManager
+    public class TaskManager : ITaskManager
     {
-        private readonly ITaskRepository _taskRepository = taskRepository;
-        private readonly IUserRepository _userRepository = userRepository;
-        private readonly ILogger<TaskManager> _logger = logger;
+        private readonly ILogger<TaskManager> _logger;
+        private readonly ITaskRepository _taskRepository;
+        private readonly IUserRepository _userRepository;
+
+        public TaskManager(ILogger<TaskManager> logger, ITaskRepository taskRepository, IUserRepository userRepository) 
+        { 
+            _logger = logger;
+            _taskRepository = taskRepository;
+            _userRepository = userRepository;
+        }
 
         public async Task AddTaskAsync(Guid userId, BaseTask task)
         {

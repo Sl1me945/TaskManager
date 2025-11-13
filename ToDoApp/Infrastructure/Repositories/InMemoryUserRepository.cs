@@ -5,7 +5,7 @@ namespace ToDoApp.Infrastructure.Repositories
 {
     public class InMemoryUserRepository : IUserRepository
     {
-        private readonly List<User> _users = [];
+        private readonly List<User> _users = new List<User>();
         public InMemoryUserRepository() { }
 
         public Task<IReadOnlyList<User>> GetAllAsync()

@@ -4,6 +4,6 @@
     {
         Task SignUpAsync(string username, string password);
         Task<string?> SignInAsync(string username, string password);
-        void SignOut();
+        Task SignOutAsync(string? token);
     }
 }

@@ -64,6 +64,7 @@ namespace ToDoApp.Presentation
 
         private static async Task ShowAuthMenuAsync()
         {
+            Console.Clear();
             Console.WriteLine("\n═══ Authentication Menu ═══");
             Console.WriteLine("1. Sign In");
             Console.WriteLine("2. Sign Up");
@@ -278,7 +279,15 @@ namespace ToDoApp.Presentation
 
         private static void SignOut()
         {
-            _authService.SignOut();
+            // Revoke server-side token (if any) and clear client state
+            try
+            {
+                 _authService.SignOutAsync(_currentToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during sign out");
+            }
             _currentToken = null;
             _currentUserId = Guid.Empty;
             _currentUsername = string.Empty;

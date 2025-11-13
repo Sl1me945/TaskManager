@@ -65,7 +65,6 @@ namespace ToDoApp.Infrastructure.Services
                 }
             }
 
-
             switch (format)
             {
                 case FileFormat.Json:
@@ -78,6 +77,7 @@ namespace ToDoApp.Infrastructure.Services
                         }
                         catch (Exception)
                         {
+                            // fallback to deserializing from an empty array representation
                             return JsonSerializer.Deserialize<T>("[]")
                                     ?? throw new InvalidOperationException("Failed to deserialize and fallback returned null.");
                         }

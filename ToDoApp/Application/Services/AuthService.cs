@@ -1,20 +1,28 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 using ToDoApp.Application.Interfaces;
 using ToDoApp.Domain.Entities;
 
 namespace ToDoApp.Application.Services
 {
-    public class AuthService(ILogger<AuthService> logger, IUserRepository userRepository, IPasswordHasher passwordHasher, ITokenService tokenService) : IAuthService
+    public class AuthService : IAuthService
     {
-        private readonly ILogger<AuthService> _logger = logger;
-        private readonly IUserRepository _userRepository = userRepository;
-        private readonly IPasswordHasher _passwordHasher = passwordHasher;
-        private readonly ITokenService _tokenService = tokenService;
-        public User? CurrentUser { get; private set; }
+        private readonly ILogger<AuthService> _logger;
+        private readonly IUserRepository _userRepository;
+        private readonly IPasswordHasher _passwordHasher;
+        private readonly ITokenService _tokenService;
+
+        public AuthService(ILogger<AuthService> logger, IUserRepository userRepository, IPasswordHasher passwordHasher, ITokenService tokenService)
+        {
+            _logger = logger;
+            _userRepository = userRepository;
+            _passwordHasher = passwordHasher;
+            _tokenService = tokenService;
+        }
 
         public async Task SignUpAsync(string username, string password)
         {
-            _logger.LogInformation($"Sign up attempt for user: {username}");
+            _logger.LogInformation("Sign up attempt for user: {username}", username);
             var existingUser = await _userRepository.GetByUsernameAsync(username);
             if (existingUser != null)
                 throw new InvalidOperationException("This username is already taken.");
@@ -22,13 +30,13 @@ namespace ToDoApp.Application.Services
             string passwordHash = _passwordHasher.Hash(password);
             var user = new User(username, passwordHash);
 
-            _logger.LogInformation($"Succesfully sign up for user: {username}");
+            _logger.LogInformation("Succesfully sign up for user: {username}", username);
             await _userRepository.AddAsync(user);
         }
 
         public async Task<string?> SignInAsync(string username, string password)
         {
-            _logger.LogInformation($"Sign in attempt for user: {username}");
+            _logger.LogInformation("Sign in attempt for user: {username}", username);
             var user = await _userRepository.GetByUsernameAsync(username);
             if (user == null || !_passwordHasher.Verify(user.PasswordHash, password))
                 return null;
@@ -38,10 +46,14 @@ namespace ToDoApp.Application.Services
             return tokenString;
         }
 
-        public void SignOut()
+        public async Task SignOutAsync(string? token)
         {
             _logger.LogInformation("Sign out");
-            CurrentUser = null;
+            // Revoke token if provided
+            if (!string.IsNullOrWhiteSpace(token))
+            {
+                await _tokenService.RevokeTokenAsync(token);
+            }
         }
     }
 }

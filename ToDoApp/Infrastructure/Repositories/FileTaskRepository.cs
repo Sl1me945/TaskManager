@@ -3,14 +3,22 @@ using ToDoApp.Application.DTOs;
 using ToDoApp.Application.Interfaces;
 using ToDoApp.Domain.Entities.Tasks;
 using ToDoApp.Domain.Enums;
+using ToDoApp.Infrastructure.Services;
 
 namespace ToDoApp.Infrastructure.Repositories
 {
-    public class FileTaskRepository(ILogger<FileTaskRepository> logger, IFileStorage fileStorage, string filePath) : ITaskRepository
+    public class FileTaskRepository : ITaskRepository
     {
-        private readonly ILogger<FileTaskRepository> _logger = logger;
-        private readonly IFileStorage _fileStorage = fileStorage;
-        private readonly string _filePath = filePath;
+        private readonly ILogger<FileTaskRepository> _logger;
+        private readonly IFileStorage _fileStorage;
+        private readonly string _filePath;
+
+        public FileTaskRepository(ILogger<FileTaskRepository> logger, IFileStorage fileStorage, string filePath)
+        {
+            _logger = logger;
+            _fileStorage = fileStorage;
+            _filePath = filePath;
+        }
 
         public async Task<IReadOnlyList<BaseTask>> GetAllAsync()
         {
@@ -69,7 +77,7 @@ namespace ToDoApp.Infrastructure.Repositories
             return Task.CompletedTask;
         }
 
-        // Mapping functionc
+        // Mapping functions
         private static BaseTask MapToDomain(TaskDto taskDto)
         {
             BaseTask task = taskDto.Type switch
@@ -115,7 +123,7 @@ namespace ToDoApp.Infrastructure.Repositories
         // Other functions
         private async Task<List<BaseTask>> LoadAllTasksAsync()
         {
-            var dtos = await _fileStorage.LoadAsync<List<TaskDto>>(_filePath);
+            var dtos = await _fileStorage.LoadAsync<List<TaskDto>>(_filePath) ?? [];
             return [.. dtos.Select(MapToDomain)];
         }
         private async Task SaveAllTasksAsync(IEnumerable<BaseTask> tasks)
@@ -123,6 +131,5 @@ namespace ToDoApp.Infrastructure.Repositories
             var dtos = tasks.Select(MapToDto).ToList();
             await _fileStorage.SaveAsync(_filePath, dtos);
         }
-
     }
 }

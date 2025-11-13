@@ -7,5 +7,6 @@ namespace ToDoApp.Application.Interfaces
     {
         string GenerateToken(User user);
         Task<TokenValidationResult> ValidateTokenAsync(string token);
+        Task RevokeTokenAsync(string token);
     }
 }
