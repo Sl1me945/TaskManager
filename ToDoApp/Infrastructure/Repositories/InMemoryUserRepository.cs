@@ -12,6 +12,11 @@ namespace ToDoApp.Infrastructure.Repositories
         {
             return Task.FromResult<IReadOnlyList<User>>(_users.AsReadOnly());
         }
+        public Task<User?> GetByIdAsync(Guid id)
+        {
+            User? user = _users.FirstOrDefault(u => u.Id == id);
+            return Task.FromResult(user);
+        }
         public Task<User?> GetByUsernameAsync(string username)
         {
             User? user = _users.FirstOrDefault(u => u.Username == username);
@@ -28,11 +33,10 @@ namespace ToDoApp.Infrastructure.Repositories
                 ?? throw new InvalidOperationException($"User with username {user.Username} not found");
             existingUser.Username = user.Username;
             existingUser.PasswordHash = user.PasswordHash;
-            existingUser.Tasks = user.Tasks;
 
             return Task.CompletedTask;
         }
-        public Task SaveChangeAsync()
+        public Task SaveChangesAsync()
         {
             return Task.CompletedTask;
         }

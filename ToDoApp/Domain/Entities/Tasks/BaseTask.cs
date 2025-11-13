@@ -5,6 +5,7 @@ namespace ToDoApp.Domain.Entities.Tasks
     public abstract class BaseTask
     {
         public Guid Id { get; init; } = Guid.NewGuid();
+        public Guid UserId { get; set; }
         public string Title { get; set; } = "";
         public string Description { get; set; } = "";
         public DateTime CreatedAt { get; init; }

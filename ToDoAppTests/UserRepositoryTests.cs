@@ -22,18 +22,9 @@ namespace ToDoAppTests
             var expectedDtos = new List<UserDto>
             {
                 new() {
+                    Id = Guid.Empty,
                     Username = "Grigorii",
                     PasswordHash = "1111",
-                    Tasks =
-                    [
-                        new() {
-                            Id = Guid.NewGuid(),
-                            Title = "Test Task",
-                            Type = TaskType.Simple,
-                            IsCompleted = false,
-                            CreatedAt = DateTime.UtcNow
-                        }
-                    ]
                 }
             };
 
@@ -54,9 +45,8 @@ namespace ToDoAppTests
             users.Should().HaveCount(1);
 
             var user = users[0];
+            user.Id.Should().Be(Guid.Empty);
             user.Username.Should().Be("Grigorii");
-            user.Tasks.Should().HaveCount(1);
-            user.Tasks[0].Title.Should().Be("Test Task");
 
             fileStorage.Verify(x => x.LoadAsync<IReadOnlyList<UserDto>>(filePath), Times.Once);
         }
