@@ -52,18 +52,8 @@ namespace ToDoApp.Infrastructure.Services
             EnsurePath(path);
             format = ResolveFormat(path, format);
             if (!File.Exists(path))
-            {
-                try
-                {
-                    // create file with valid empty JSON array to avoid empty-file deserialization issues
-                    File.WriteAllText(path, "[]");
-                }
-                catch (Exception)
-                {
-                    // preserve original stack trace
-                    throw;
-                }
-            }
+                throw new FileNotFoundException($"File does not exist: {path}");
+
 
             switch (format)
             {
@@ -75,11 +65,9 @@ namespace ToDoApp.Infrastructure.Services
                             return await JsonSerializer.DeserializeAsync<T>(fs, JsonOptions)
                                    ?? throw new InvalidOperationException("Deserialized JSON was null.");
                         }
-                        catch (Exception)
+                        catch (JsonException ex)
                         {
-                            // fallback to deserializing from an empty array representation
-                            return JsonSerializer.Deserialize<T>("[]")
-                                    ?? throw new InvalidOperationException("Failed to deserialize and fallback returned null.");
+                            throw new InvalidDataException($"Invalid JSON in file {path}", ex);
                         }
                     }
 

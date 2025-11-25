@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.VisualBasic;
 using ToDoApp.Application.DTOs;
 using ToDoApp.Application.Interfaces;
 using ToDoApp.Domain.Entities.Tasks;
@@ -123,8 +124,24 @@ namespace ToDoApp.Infrastructure.Repositories
         // Other functions
         private async Task<List<BaseTask>> LoadAllTasksAsync()
         {
-            var dtos = await _fileStorage.LoadAsync<List<TaskDto>>(_filePath) ?? [];
-            return [.. dtos.Select(MapToDomain)];
+            try
+            {
+                var dtos = await _fileStorage.LoadAsync<List<TaskDto>>(_filePath);
+
+                return (dtos ?? [])
+                    .Select(MapToDomain)
+                    .ToList();
+            }
+            catch (FileNotFoundException) 
+            {
+                _logger.LogWarning("Task storage file not found. Creating new empty storage.");
+                return [];
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to load tasks from file: {FilePath}", _filePath);
+                return [];
+            }
         }
         private async Task SaveAllTasksAsync(IEnumerable<BaseTask> tasks)
         {

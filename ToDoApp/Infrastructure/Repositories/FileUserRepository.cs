@@ -93,8 +93,24 @@ namespace ToDoApp.Infrastructure.Repositories
         // Other functions
         private async Task<List<User>> LoadAllUsersAsync()
         {
-            var dtos = await _fileStorage.LoadAsync<List<UserDto>>(_filePath) ?? [];
-            return [.. dtos.Select(MapToDomain)];
+            try
+            {
+                var dtos = await _fileStorage.LoadAsync<List<UserDto>>(_filePath);
+
+                return (dtos ?? [])
+                    .Select(MapToDomain)
+                    .ToList();
+            }
+            catch (FileNotFoundException)
+            {
+                _logger.LogWarning("User storage file not found. Creating new empty storage.");
+                return [];
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to load users from file: {FilePath}", _filePath);
+                return [];
+            }
         }
         private async Task SaveAllUsersAsync(IEnumerable<User> users)
         {
