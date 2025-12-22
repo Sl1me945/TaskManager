@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ToDoApp.Application.Interfaces;
@@ -17,30 +18,39 @@ namespace ToDoApp.Presentation
                     // Logging
                     services.AddLogging(cfg => cfg.AddConsole());
 
+                    // Bind options
+                    services.Configure<JwtOptions>(hostContext.Configuration.GetSection("Jwt"));
+
                     // Infrastructure
                     services.AddSingleton<IFileStorage, FileStorage>();
                     services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
                     services.AddSingleton<ITokenService, JwtTokenService>();
+
+                    // Data file paths from configuration
+                    var usersFileRelative = hostContext.Configuration.GetValue<string>("Data:UsersFile") ?? "data/users/users.json";
+                    var tasksFileRelative = hostContext.Configuration.GetValue<string>("Data:TasksFile") ?? "data/tasks/tasks.json";
+                    var usersFile = Path.Combine(AppContext.BaseDirectory, usersFileRelative);
+                    var tasksFile = Path.Combine(AppContext.BaseDirectory, tasksFileRelative);
 
                     // Repositories - provide file paths here (adjust as needed)
                     services.AddScoped<IUserRepository>(sp =>
                         new FileUserRepository(
                             sp.GetRequiredService<ILogger<FileUserRepository>>(),
                             sp.GetRequiredService<IFileStorage>(),
-                            Path.Combine(AppContext.BaseDirectory, "data", "users", "users.json")));
+                            usersFile));
 
                     services.AddScoped<ITaskRepository>(sp =>
                         new FileTaskRepository(
                             sp.GetRequiredService<ILogger<FileTaskRepository>>(),
                             sp.GetRequiredService<IFileStorage>(),
-                            Path.Combine(AppContext.BaseDirectory, "data", "tasks", "tasks.json")));
+                            tasksFile));
 
                     // Application services
                     services.AddScoped<IAuthService, AuthService>();
                     services.AddScoped<ITaskManager, TaskManager>();
 
                     // Console runner / application entry
-                    services.AddSingleton<AppRunner>();
+                    services.AddScoped<AppRunner>();
                 });
     }
 }

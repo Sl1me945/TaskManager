@@ -53,7 +53,31 @@ cd ToDoApp
 dotnet restore
 ```
 
-### 3️⃣ Run the application
+### 3️⃣ Set your own JWT Secret Key (Development only)
+```bash
+dotnet user-secrets init
+dotnet user-secrets set "Jwt:SecretKey" "Your_Jwt_secret_key_At_least_32_bytes"
+```
+⚠️ JWT secret is required and is not stored in the repository by design.
+
+### Make sure the application is running in Development environment:
+
+Bash (Linux / macOS / Git Bash)
+```bash
+export DOTNET_ENVIRONMENT=Development
+```
+
+PowerShell (Windows)
+```powershell
+$env:DOTNET_ENVIRONMENT="Development"
+```
+
+cmd (Windows)
+```cmd
+set DOTNET_ENVIRONMENT=Development
+```
+
+### 4️⃣ Run the application
 ```bash
 dotnet run
 ```

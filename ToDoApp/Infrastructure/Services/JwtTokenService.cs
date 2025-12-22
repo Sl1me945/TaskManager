@@ -1,4 +1,5 @@
-﻿using Microsoft.IdentityModel.JsonWebTokens;
+﻿using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 using System.Collections.Concurrent;
 using System.Security.Claims;
@@ -11,11 +12,39 @@ namespace ToDoApp.Infrastructure.Services
 {
     public class JwtTokenService : ITokenService
     {
-        private const string SecretKey = "super_puper_secret_key_kkkkkkkkkkkkk";
-        private readonly SymmetricSecurityKey _key = new(Encoding.UTF8.GetBytes(SecretKey));
-
-        // revoked JTI -> expiry (UTC)
+        private readonly SymmetricSecurityKey _key;
+        private readonly JwtOptions _options;
         private readonly ConcurrentDictionary<string, DateTime> _revoked = new();
+
+        public JwtTokenService(IOptions<JwtOptions> options)
+        {
+            _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+
+            if (string.IsNullOrWhiteSpace(_options.SecretKey))
+            {
+                throw new InvalidOperationException("JWT SecretKey is not configured");
+            }
+
+            byte[] keyBytes;
+
+            try
+            {
+                keyBytes = Convert.FromBase64String(_options.SecretKey);
+            }
+            catch (FormatException)
+            {
+                keyBytes = Encoding.UTF8.GetBytes(_options.SecretKey);
+            }
+
+            if (keyBytes.Length < 32)
+            {
+                throw new InvalidOperationException(
+                    $"JWT SecretKey must be at least 32 bytes. Current: {keyBytes.Length} bytes"
+                );
+            }
+
+            _key = new SymmetricSecurityKey(keyBytes);
+        }
 
         public string GenerateToken(User user)
         {
@@ -31,10 +60,10 @@ namespace ToDoApp.Infrastructure.Services
             var token = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(1),
+                Expires = DateTime.UtcNow.AddHours(_options.ExpiryHours),
                 SigningCredentials = creds,
-                Issuer = "ToDoApp",
-                Audience = "ToDoAppClient"
+                Issuer = _options.Issuer,
+                Audience = _options.Audience,
             };
 
             var tokenHandler = new JsonWebTokenHandler();
@@ -53,8 +82,8 @@ namespace ToDoApp.Infrastructure.Services
                 ValidateAudience = true,
                 ValidateLifetime = true,
                 ValidateIssuerSigningKey = true,
-                ValidIssuer = "ToDoApp",
-                ValidAudience = "ToDoAppClient",
+                ValidIssuer = _options.Issuer,
+                ValidAudience = _options.Audience,
                 IssuerSigningKey = _key,
             });
             

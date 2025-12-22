@@ -128,19 +128,19 @@ namespace ToDoApp.Infrastructure.Repositories
             {
                 var dtos = await _fileStorage.LoadAsync<List<TaskDto>>(_filePath);
 
-                return (dtos ?? [])
+                return dtos
                     .Select(MapToDomain)
                     .ToList();
             }
             catch (FileNotFoundException) 
             {
                 _logger.LogWarning("Task storage file not found. Creating new empty storage.");
-                return [];
+                return new List<BaseTask>();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to load tasks from file: {FilePath}", _filePath);
-                return [];
+                return new List<BaseTask>();
             }
         }
         private async Task SaveAllTasksAsync(IEnumerable<BaseTask> tasks)

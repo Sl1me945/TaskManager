@@ -7,9 +7,9 @@ namespace ToDoApp.Presentation
         public static async Task Main(string[] args)
         {
             using var host = GenericHost.CreateHostBuilder(args).Build();
-            await host.StartAsync();
 
-            var runner = host.Services.GetRequiredService<AppRunner>();
+            using var scope = host.Services.CreateScope();
+            var runner = scope.ServiceProvider.GetRequiredService<AppRunner>();
             try
             {
                 await runner.RunAsync();
