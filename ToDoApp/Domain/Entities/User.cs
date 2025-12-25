@@ -1,6 +1,4 @@
-﻿using ToDoApp.Domain.Entities.Tasks;
-
-namespace ToDoApp.Domain.Entities
+﻿namespace ToDoApp.Domain.Entities
 {
     public class User
     {

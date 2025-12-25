@@ -1,5 +1,5 @@
-﻿using ToDoApp.Application.Interfaces;
-using ToDoApp.Domain.Entities;
+﻿using ToDoApp.Domain.Entities;
+using ToDoApp.Domain.Interfaces;
 
 namespace ToDoApp.Infrastructure.Repositories
 {

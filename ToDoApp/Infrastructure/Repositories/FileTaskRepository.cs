@@ -1,10 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.VisualBasic;
 using ToDoApp.Application.DTOs;
 using ToDoApp.Application.Interfaces;
 using ToDoApp.Domain.Entities.Tasks;
 using ToDoApp.Domain.Enums;
-using ToDoApp.Infrastructure.Services;
+using ToDoApp.Domain.Interfaces;
 
 namespace ToDoApp.Infrastructure.Repositories
 {

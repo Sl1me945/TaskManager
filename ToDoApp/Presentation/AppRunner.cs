@@ -34,9 +34,6 @@ namespace ToDoApp.Presentation
             {
                 _logger.LogInformation("ToDoApp started successfully");
 
-                Console.Clear();
-                PrintWelcomeBanner();
-
                 // Main application loop
                 while (true)
                 {
@@ -73,7 +70,9 @@ namespace ToDoApp.Presentation
 
         private async Task ShowAuthMenuAsync()
         {
-            Console.WriteLine("\n═══ Authentication Menu ═══");
+            RefreshScreen();
+            PrintWelcomeBanner();
+            Console.WriteLine("═══ Authentication Menu ═══");
             Console.WriteLine("1. Sign In");
             Console.WriteLine("2. Sign Up");
             Console.WriteLine("3. Exit");
@@ -102,7 +101,7 @@ namespace ToDoApp.Presentation
 
         private async Task ShowMainMenuAsync()
         {
-            Console.Clear();
+            RefreshScreen();
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine($"╔════════════════════════════════════════╗");
             Console.WriteLine($"║ Logged in as: {_currentUsername,-24} ║");
@@ -173,7 +172,7 @@ namespace ToDoApp.Presentation
 
         private async Task SignUpAsync()
         {
-            Console.Clear();
+            RefreshScreen();
             Console.WriteLine("═══ Sign Up ═══\n");
 
             Console.Write("Username: ");
@@ -224,7 +223,7 @@ namespace ToDoApp.Presentation
 
         private async Task SignInAsync()
         {
-            Console.Clear();
+            RefreshScreen();
             Console.WriteLine("═══ Sign In ═══\n");
 
             Console.Write("Username: ");
@@ -305,12 +304,11 @@ namespace ToDoApp.Presentation
             Console.ResetColor();
             _logger.LogInformation("User signed out");
             Thread.Sleep(1500);
-            Console.Clear();
         }
 
         private async Task AddTaskAsync()
         {
-            Console.Clear();
+            RefreshScreen();
             Console.WriteLine("═══ Add New Task ═══\n");
 
             Console.WriteLine("Select task type:");
@@ -425,7 +423,7 @@ namespace ToDoApp.Presentation
 
         private async Task ViewAllTasksAsync()
         {
-            Console.Clear();
+            RefreshScreen();
             Console.WriteLine("═══ All Tasks ═══\n");
 
             try
@@ -457,7 +455,7 @@ namespace ToDoApp.Presentation
 
         private async Task UpdateTaskAsync()
         {
-            Console.Clear();
+            RefreshScreen();
             Console.WriteLine("═══ Update Task ═══\n");
 
             try
@@ -559,7 +557,7 @@ namespace ToDoApp.Presentation
 
         private async Task DeleteTaskAsync()
         {
-            Console.Clear();
+            RefreshScreen();
             Console.WriteLine("═══ Delete Task ═══\n");
 
             try
@@ -617,7 +615,7 @@ namespace ToDoApp.Presentation
 
         private async Task MarkTaskCompletedAsync()
         {
-            Console.Clear();
+            RefreshScreen();
             Console.WriteLine("═══ Mark Task as Completed ═══\n");
 
             try
@@ -663,7 +661,7 @@ namespace ToDoApp.Presentation
 
         private async Task SearchTasksAsync()
         {
-            Console.Clear();
+            RefreshScreen();
             Console.WriteLine("═══ Search Tasks ═══\n");
 
             Console.Write("Enter search keyword: ");
@@ -707,7 +705,7 @@ namespace ToDoApp.Presentation
 
         private async Task SortTasksByDateAsync()
         {
-            Console.Clear();
+            RefreshScreen();
             Console.WriteLine("═══ Sort Tasks by Date ═══\n");
             Console.WriteLine("1. Ascending (oldest first)");
             Console.WriteLine("2. Descending (newest first)");
@@ -747,7 +745,7 @@ namespace ToDoApp.Presentation
 
         private async Task FilterTasksByCompletionAsync()
         {
-            Console.Clear();
+            RefreshScreen();
             Console.WriteLine("═══ Filter Tasks ═══\n");
             Console.WriteLine("1. Show completed tasks");
             Console.WriteLine("2. Show incomplete tasks");
@@ -894,6 +892,15 @@ namespace ToDoApp.Presentation
             while (key.Key != ConsoleKey.Enter);
 
             return password;
+        }
+
+        private static void RefreshScreen()
+        {
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine(new string('═', Console.WindowWidth - 1));
+            Console.ResetColor();
+            Console.WriteLine();
         }
     }
 }

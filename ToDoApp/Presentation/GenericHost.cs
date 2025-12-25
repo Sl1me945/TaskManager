@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ToDoApp.Application.Interfaces;
 using ToDoApp.Application.Services;
+using ToDoApp.Domain.Interfaces;
 using ToDoApp.Infrastructure.Repositories;
 using ToDoApp.Infrastructure.Services;
 

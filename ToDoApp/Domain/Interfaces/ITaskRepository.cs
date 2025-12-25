@@ -1,7 +1,6 @@
-﻿using ToDoApp.Domain.Entities;
-using ToDoApp.Domain.Entities.Tasks;
+﻿using ToDoApp.Domain.Entities.Tasks;
 
-namespace ToDoApp.Application.Interfaces
+namespace ToDoApp.Domain.Interfaces
 {
     public interface ITaskRepository
     {

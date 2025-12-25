@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using ToDoApp.Application.Interfaces;
 using ToDoApp.Domain.Entities;
+using ToDoApp.Domain.Interfaces;
 
 namespace ToDoApp.Application.Services
 {
