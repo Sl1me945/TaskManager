@@ -41,9 +41,9 @@ namespace ToDoApp.Application.Services
             if (user == null || !_passwordHasher.Verify(user.PasswordHash, password))
                 return null;
 
-            var tokenString = _tokenService.GenerateToken(user);
+            var token = _tokenService.GenerateToken(user);
 
-            return tokenString;
+            return token;
         }
 
         public async Task SignOutAsync(string? token)

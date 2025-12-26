@@ -15,7 +15,7 @@ namespace ToDoApp.Infrastructure.Services
         private readonly SymmetricSecurityKey _key;
         private readonly JwtOptions _options;
         private readonly ConcurrentDictionary<string, DateTime> _revoked = new();
-
+        
         public JwtTokenService(IOptions<JwtOptions> options)
         {
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));

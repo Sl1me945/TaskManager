@@ -3,7 +3,6 @@ using FluentAssertions;
 using Moq;
 using ToDoApp.Application.DTOs;
 using ToDoApp.Application.Interfaces;
-using ToDoApp.Domain.Enums;
 using ToDoApp.Infrastructure.Repositories;
 
 namespace ToDoAppTests
@@ -29,7 +28,7 @@ namespace ToDoAppTests
             };
 
             fileStorage
-                .Setup(s => s.LoadAsync<IReadOnlyList<UserDto>>(filePath))
+                .Setup(s => s.LoadAsync<List<UserDto>>(filePath))
                 .ReturnsAsync(expectedDtos);
 
             var repo = new FileUserRepository(
@@ -48,7 +47,7 @@ namespace ToDoAppTests
             user.Id.Should().Be(Guid.Empty);
             user.Username.Should().Be("Grigorii");
 
-            fileStorage.Verify(x => x.LoadAsync<IReadOnlyList<UserDto>>(filePath), Times.Once);
+            fileStorage.Verify(x => x.LoadAsync<List<UserDto>>(filePath), Times.Once);
         }
     }
 }
